@@ -1,0 +1,35 @@
+diff --git a/app/views.py b/app/views.py
+index 1a2b3c4..5d6e7f8 100644
+--- a/app/views.py
++++ b/app/views.py
+@@ -1,6 +1,8 @@
+ from flask import Flask, request, jsonify
++import sqlite3
++import os
+
+ app = Flask(__name__)
++API_KEY = "sk-proj-abc123def456ghi789jkl012mno345pqr678stu901vwx234"
+
+ @app.route("/users/<user_id>")
+@@ -10,8 +12,12 @@ def get_user(user_id):
+-    user = User.query.get(user_id)
+-    return jsonify(user.to_dict())
++    conn = sqlite3.connect("app.db")
++    cursor = conn.cursor()
++    query = f"SELECT * FROM users WHERE id = {user_id}"
++    cursor.execute(query)
++    user = cursor.fetchone()
++    return jsonify({"user": user})
+
+ @app.route("/eval", methods=["POST"])
+@@ -20,4 +26,10 @@ def run_eval():
+-    pass
++    expression = request.form.get("expression")
++    result = eval(expression)
++    return jsonify({"result": result})
++
++@app.route("/config")
++def get_config():
++    data = request.args.get("data")
++    config = __import__("pickle").loads(bytes.fromhex(data))
++    return jsonify({"config": str(config)})

@@ -1,0 +1,50 @@
+diff --git a/app/services.py b/app/services.py
+index a1b2c3d..e4f5g6h 100644
+--- a/app/services.py
++++ b/app/services.py
+@@ -1,5 +1,8 @@
+-from app.models import User
++from app.models import User, Order, Product
++import json
++import os
++import sys
++import re
+
+-def get_user(user_id):
+-    return User.query.get(user_id)
++def getUserById(user_id):
++    x = User.query.get(user_id)
++    if x == None:
++        return None
++    return x
+
++def processOrder(userId, items, discount, tax, shipping, extra1, extra2, extra3):
++    u = User.query.get(userId)
++    total = 0
++    for i in items:
++        p = Product.query.get(i["id"])
++        total = total + p.price * i["qty"]
++    if discount > 0:
++        total = total - discount
++    if tax > 0:
++        total = total + tax
++    if shipping > 0:
++        total = total + shipping
++    if total < 0:
++        total = 0
++    o = Order(user_id=userId, total=total)
++    o.items = json.dumps(items)
++    o.status = "pending"
++    o.discount = discount
++    o.tax = tax
++    o.shipping = shipping
++    try:
++        db.session.add(o)
++        db.session.commit()
++    except:
++        db.session.rollback()
++        return None
++    threshold = 1000
++    if total > threshold:
++        send_notification(u.email, "Large order placed")
++    return o

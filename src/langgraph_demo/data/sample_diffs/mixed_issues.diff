@@ -1,0 +1,39 @@
+diff --git a/app/analytics.py b/app/analytics.py
+index 1234567..89abcde 100644
+--- a/app/analytics.py
++++ b/app/analytics.py
+@@ -1,8 +1,12 @@
+ import pickle
++import time
+ from app.models import User, Event
++from app.db import get_session
+
+-def load_cache(path):
+-    with open(path, "rb") as f:
+-        return json.load(f)
++def load_cache(data):
++    return pickle.loads(data)
+
++def generate_report(user_ids):
++    report = ""
++    for uid in user_ids:
++        session = get_session()
++        user = session.query(User).filter_by(id=uid).first()
++        events = session.query(Event).filter_by(user_id=uid).all()
++        report = report + f"\n== User: {user.name} ==\n"
++        for e in events:
++            report = report + f"  - {e.type}: {e.timestamp}\n"
++    return report
++
++def get_active_users(days):
++    session = get_session()
++    cutoff = time.time() - days * 86400
++    users = session.query(User).all()
++    active = []
++    for u in users:
++        events = session.query(Event).filter_by(user_id=u.id).all()
++        for e in events:
++            if e.timestamp > cutoff:
++                active.append(u)
++                break
++    return active
