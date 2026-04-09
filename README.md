@@ -95,6 +95,20 @@ uv run python -m langgraph_demo.examples.04_git_review --repo /path/to/repo --re
 
 15 best-practices documents embedded with `nomic-embed-text`, covering OWASP guidelines, PEP 8, performance patterns, and more. Queried via semantic search during reviews.
 
+## Testing
+
+```bash
+# Unit tests (no Ollama needed, all LLM calls mocked)
+uv run pytest tests/unit/ -v
+
+# Integration tests (requires Ollama running + seeded databases)
+uv run python -m langgraph_demo.data.seed_rules
+uv run python -m langgraph_demo.data.seed_knowledge
+uv run pytest tests/integration/ -v
+```
+
+> **Note:** Only unit tests run in CI. Integration tests are local-only (they require Ollama with `llama3.1:8b`).
+
 ## LangGraph Concepts Covered
 
 | Concept | Ex.1 | Ex.2 | Ex.3 | Ex.4 |
