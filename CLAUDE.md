@@ -8,6 +8,8 @@
 - `uv run python -m langgraph_demo.examples.01_simple_reviewer` — Example 1
 - `uv run python -m langgraph_demo.examples.02_multi_agent` — Example 2
 - `uv run python -m langgraph_demo.examples.03_full_pipeline` — Example 3
+- `uv run python -m langgraph_demo.examples.04_git_review` — Example 4 (real git diff)
+- `uv run langgraph dev` — launch LangGraph Studio
 
 ## Prerequisites
 

@@ -70,6 +70,21 @@ Concepts: subgraphs, tool-calling loops, `Send` API, SQLite + ChromaDB RAG tools
 uv run python -m langgraph_demo.examples.03_full_pipeline
 ```
 
+### Example 4: Real Git Review
+
+Concepts: real-world input, git tools (`git_diff`, `git_log`, `git_changed_files`), CLI arguments
+
+```bash
+# Review uncommitted changes in current repo
+uv run python -m langgraph_demo.examples.04_git_review
+
+# Review current branch against main
+uv run python -m langgraph_demo.examples.04_git_review --ref main
+
+# Review a different repo
+uv run python -m langgraph_demo.examples.04_git_review --repo /path/to/repo --ref HEAD~3
+```
+
 ## Knowledge Sources
 
 ### Rules Database (SQLite)
@@ -82,15 +97,17 @@ uv run python -m langgraph_demo.examples.03_full_pipeline
 
 ## LangGraph Concepts Covered
 
-| Concept | Ex.1 | Ex.2 | Ex.3 |
-|---------|:----:|:----:|:----:|
-| StateGraph / nodes / edges | v | v | v |
-| Annotated state (operator.add) | | v | v |
-| Conditional edges | | v | v |
-| Parallel execution (fan-out) | | v | v |
-| Human-in-the-loop (interrupt) | | v | v |
-| Checkpointing (InMemorySaver) | | v | v |
-| Tool calling (@tool) | | | v |
-| Subgraphs | | | v |
-| Send API | | | v |
-| RAG (ChromaDB) | | | v |
+| Concept | Ex.1 | Ex.2 | Ex.3 | Ex.4 |
+|---------|:----:|:----:|:----:|:----:|
+| StateGraph / nodes / edges | v | v | v | v |
+| Annotated state (operator.add) | | v | v | v |
+| Conditional edges | | v | v | v |
+| Parallel execution (fan-out) | | v | v | v |
+| Human-in-the-loop (interrupt) | | v | v | v |
+| Checkpointing (InMemorySaver) | | v | v | v |
+| Tool calling (@tool) | | | v | v |
+| Subgraphs | | | v | v |
+| Send API | | | v | v |
+| RAG (ChromaDB) | | | v | v |
+| Real git integration | | | | v |
+| CLI arguments (argparse) | | | | v |

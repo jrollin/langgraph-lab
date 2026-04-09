@@ -70,23 +70,27 @@ builder.add_edge("performance_review", "aggregator")
 builder.add_conditional_edges("aggregator", route_by_severity, ["human_approval", END])
 builder.add_edge("human_approval", END)
 
-# Compile with checkpointer (required for interrupt)
-serde = JsonPlusSerializer(
-    allowed_msgpack_modules=[("langgraph_demo.state", "Finding")],
-)
-memory = InMemorySaver(serde=serde)
-graph = builder.compile(checkpointer=memory)
+# Compile without checkpointer (Studio provides its own persistence).
+# When running standalone, we add InMemorySaver in __main__.
+graph = builder.compile()
 
 
 if __name__ == "__main__":
     from langgraph_demo.data.sample_diffs import SECURITY_DIFF
+
+    # Recompile with checkpointer for standalone execution (required for interrupt)
+    serde = JsonPlusSerializer(
+        allowed_msgpack_modules=[("langgraph_demo.state", "Finding")],
+    )
+    memory = InMemorySaver(serde=serde)
+    standalone_graph = builder.compile(checkpointer=memory)
 
     config = {"configurable": {"thread_id": "review-1"}}
 
     print("=== Multi-Agent Code Review ===\n")
     print("Running 3 parallel reviewers (security, style, performance)...\n")
 
-    result = graph.invoke(
+    result = standalone_graph.invoke(
         {
             "code_diff": SECURITY_DIFF,
             "findings": [],
@@ -98,12 +102,12 @@ if __name__ == "__main__":
     )
 
     # Check if we were interrupted (high/critical severity)
-    state = graph.get_state(config)
+    state = standalone_graph.get_state(config)
     if state.next:
         print("--- Interrupted: human approval required ---\n")
         print(result.get("final_report", ""))
         print("\nResuming with approval...\n")
-        result = graph.invoke(Command(resume="approve"), config)
+        result = standalone_graph.invoke(Command(resume="approve"), config)
 
     print("\n=== Final Report ===\n")
     print(result.get("final_report", "No report generated"))

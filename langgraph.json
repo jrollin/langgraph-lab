@@ -1,0 +1,10 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "simple_reviewer": "./src/langgraph_demo/examples/01_simple_reviewer.py:graph",
+    "multi_agent": "./src/langgraph_demo/examples/02_multi_agent.py:graph",
+    "full_pipeline": "./src/langgraph_demo/examples/03_full_pipeline.py:graph",
+    "git_review": "./src/langgraph_demo/examples/04_git_review.py:graph"
+  },
+  "env": ".env"
+}
