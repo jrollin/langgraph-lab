@@ -18,3 +18,6 @@ src/langgraph_demo/data/chroma_db/
 
 # Cartog
 .cartog.db*
+
+# LangGraph Studio runtime
+.langgraph_api/
