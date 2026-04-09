@@ -85,7 +85,9 @@ if __name__ == "__main__":
     memory = InMemorySaver(serde=serde)
     standalone_graph = builder.compile(checkpointer=memory)
 
-    config = {"configurable": {"thread_id": "review-1"}}
+    from langgraph_demo.tracing import get_tracing_config
+
+    config = get_tracing_config(thread_id="review-1", run_name="multi-agent-review")
 
     print("=== Multi-Agent Code Review ===\n")
     print("Running 3 parallel reviewers (security, style, performance)...\n")

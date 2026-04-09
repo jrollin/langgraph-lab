@@ -267,7 +267,9 @@ if __name__ == "__main__":
     memory = InMemorySaver(serde=serde)
     standalone_graph = builder.compile(checkpointer=memory)
 
-    config = {"configurable": {"thread_id": "git-review-1"}}
+    from langgraph_demo.tracing import get_tracing_config
+
+    config = get_tracing_config(thread_id="git-review-1", run_name="git-review")
 
     print(f"=== Git Code Review: {args.ref} in {args.repo} ===\n")
 

@@ -15,6 +15,7 @@ dependencies = [
     "chromadb>=1.0",
     "pydantic>=2.0",
     "langgraph-cli[inmem]>=0.4.21",
+    "langfuse>=4.0.6",
 ]
 
 [build-system]
