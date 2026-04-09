@@ -8,6 +8,7 @@ Demonstrates:
 - Conditional routing based on severity
 - Human-in-the-loop with interrupt()
 - Checkpointing with InMemorySaver
+- **Streaming** with ``stream_mode="updates"`` for real-time progress
 
 Run: uv run python -m langgraph_demo.examples.03_full_pipeline
 """
@@ -260,31 +261,55 @@ if __name__ == "__main__":
 
     config = get_tracing_config(thread_id="pipeline-1", run_name="full-pipeline-review")
 
-    print("=== Full Code Review Pipeline ===")
+    print("=== Full Code Review Pipeline (streaming) ===")
     print("Using tools: SQLite rules DB + ChromaDB knowledge base\n")
 
-    result = standalone_graph.invoke(
-        {
-            "raw_diff": MIXED_DIFF,
-            "hunks": [],
-            "findings": [],
-            "max_severity": "",
-            "final_report": "",
-            "human_approved": False,
-        },
-        config,
-    )
+    initial_state = {
+        "raw_diff": MIXED_DIFF,
+        "hunks": [],
+        "findings": [],
+        "max_severity": "",
+        "final_report": "",
+        "human_approved": False,
+    }
 
-    # Check for interrupt
+    # --- Stream with "updates" mode: receive state delta after each node ---
+    interrupted = False
+    last_update: dict = {}
+
+    for node_update in standalone_graph.stream(initial_state, config, stream_mode="updates"):
+        for node_name, update in node_update.items():
+            print(f"  [{node_name}] completed")
+
+            if node_name == "run_reviewer":
+                count = len(update.get("findings", []))
+                print(f"    → {count} finding(s)")
+
+            if node_name == "aggregator":
+                print(f"    → max severity: {update.get('max_severity', '?')}")
+
+            last_update = update
+
+    # Check for interrupt (human-in-the-loop)
     state = standalone_graph.get_state(config)
     if state.next:
-        print("--- Interrupted: human approval required ---\n")
-        print(result.get("final_report", ""))
+        interrupted = True
+        print("\n--- Interrupted: human approval required ---\n")
+        print(state.values.get("final_report", "")[:500])
         print("\nResuming with approval...\n")
-        result = standalone_graph.invoke(Command(resume="approve"), config)
+
+        for node_update in standalone_graph.stream(
+            Command(resume="approve"), config, stream_mode="updates"
+        ):
+            for node_name, update in node_update.items():
+                print(f"  [{node_name}] completed")
+                last_update = update
+
+    # Fetch final state to print the report
+    final = standalone_graph.get_state(config).values
 
     print("\n=== Final Report ===\n")
-    print(result.get("final_report", "No report generated"))
-    print(f"\nMax severity: {result.get('max_severity', 'unknown')}")
-    print(f"Human approved: {result.get('human_approved', 'N/A')}")
-    print(f"Total findings: {len(result.get('findings', []))}")
+    print(final.get("final_report", "No report generated"))
+    print(f"\nMax severity: {final.get('max_severity', 'unknown')}")
+    print(f"Human approved: {final.get('human_approved', 'N/A')}")
+    print(f"Total findings: {len(final.get('findings', []))}")

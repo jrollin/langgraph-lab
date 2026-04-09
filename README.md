@@ -64,7 +64,7 @@ uv run python -m langgraph_demo.examples.02_multi_agent
 
 ### Example 3: Full Pipeline with Tools
 
-Concepts: subgraphs, tool-calling loops, `Send` API, SQLite + ChromaDB RAG tools, checkpointing
+Concepts: subgraphs, tool-calling loops, `Send` API, SQLite + ChromaDB RAG tools, checkpointing, **streaming** (`stream_mode="updates"`)
 
 ```bash
 uv run python -m langgraph_demo.examples.03_full_pipeline
@@ -109,5 +109,6 @@ uv run python -m langgraph_demo.examples.04_git_review --repo /path/to/repo --re
 | Subgraphs | | | v | v |
 | Send API | | | v | v |
 | RAG (ChromaDB) | | | v | v |
+| Streaming (stream_mode) | | | v | |
 | Real git integration | | | | v |
 | CLI arguments (argparse) | | | | v |
